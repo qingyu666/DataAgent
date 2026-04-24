@@ -36,7 +36,7 @@ public class StreamContext {
 
 	private Disposable disposable;
 
-	private Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink;
+	private Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink;  // 每一轮一个sink？
 
 	private Span span;
 
@@ -45,7 +45,7 @@ public class StreamContext {
 	/**
 	 * 收集流式输出内容，用于 Langfuse 上报
 	 */
-	private final StringBuilder outputCollector = new StringBuilder();
+	private final StringBuilder outputCollector = new StringBuilder();  // 一个对话的所有轮次 都会被拼接
 
 	public void appendOutput(String chunk) {
 		outputCollector.append(chunk);
@@ -63,7 +63,7 @@ public class StreamContext {
 	/**
 	 * 清理所有资源 线程安全：使用 AtomicBoolean 确保只执行一次
 	 */
-	public void cleanup() {
+	public void cleanup() {  // 清理时没有清理span，因为span需要根据是否成功清理。在外面逻辑清理；sink可以在外面提前清理
 		// 使用 compareAndSet 确保只执行一次清理
 		if (!cleaned.compareAndSet(false, true)) {
 			return;

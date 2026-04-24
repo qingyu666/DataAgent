@@ -48,11 +48,11 @@ import static com.alibaba.cloud.ai.dataagent.constant.Constant.*;
 @Service
 public class GraphServiceImpl implements GraphService {
 
-	private final CompiledGraph compiledGraph;
+	private final CompiledGraph compiledGraph; // com.alibaba.cloud.ai.dataagent.config.DataAgentConfiguration.nl2sqlGraph
 
 	private final ExecutorService executor;
 
-	private final ConcurrentHashMap<String, StreamContext> streamContextMap = new ConcurrentHashMap<>();
+	private final ConcurrentHashMap<String, StreamContext> streamContextMap = new ConcurrentHashMap<>();  // 上下文map
 
 	private final MultiTurnContextManager multiTurnContextManager;
 
@@ -84,12 +84,12 @@ public class GraphServiceImpl implements GraphService {
 		String threadId = graphRequest.getThreadId();
 		// 创建或获取 StreamContext
 		StreamContext context = streamContextMap.computeIfAbsent(threadId, k -> new StreamContext());
-		context.setSink(sink);
+		context.setSink(sink); // 每一轮一个sink？
 		if (StringUtils.hasText(graphRequest.getHumanFeedbackContent())) {
-			handleHumanFeedback(graphRequest);
+			handleHumanFeedback(graphRequest); // 执行
 		}
 		else {
-			handleNewProcess(graphRequest);
+			handleNewProcess(graphRequest);  // 执行新流程
 		}
 	}
 
@@ -137,11 +137,11 @@ public class GraphServiceImpl implements GraphService {
 		Span span = langfuseReporter.startLLMSpan("graph-stream", graphRequest);
 		context.setSpan(span);
 
-		String multiTurnContext = multiTurnContextManager.buildContext(threadId);
-		multiTurnContextManager.beginTurn(threadId, query);
+		String multiTurnContext = multiTurnContextManager.buildContext(threadId);  // 构建上下文  --多轮对话存在内存中，默认保留5轮内容
+		multiTurnContextManager.beginTurn(threadId, query); // 为给定的线程跟踪一个新的轮次。  --当前轮存入内存
 		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(
 				Map.of(IS_ONLY_NL2SQL, nl2sqlOnly, INPUT_KEY, query, AGENT_ID, agentId, HUMAN_REVIEW_ENABLED,
-						humanReviewEnabled, MULTI_TURN_CONTEXT, multiTurnContext, TRACE_THREAD_ID, threadId),
+						humanReviewEnabled, MULTI_TURN_CONTEXT, multiTurnContext, TRACE_THREAD_ID, threadId),  // 参数
 				RunnableConfig.builder().threadId(threadId).build());
 		subscribeToFlux(context, nodeOutputFlux, graphRequest, agentId, threadId);
 	}
@@ -244,10 +244,10 @@ public class GraphServiceImpl implements GraphService {
 								"Error in stream processing: " + error.getMessage()))
 						.event(STREAM_EVENT_ERROR)
 						.build());
-				context.getSink().tryEmitComplete();
+				context.getSink().tryEmitComplete();  // 尝试关闭sink
 			}
 			// 清理资源（cleanup 内部已经保证只执行一次）
-			context.cleanup();
+			context.cleanup();  // 清理资源
 		}
 	}
 
@@ -256,21 +256,21 @@ public class GraphServiceImpl implements GraphService {
 	 */
 	private void handleStreamComplete(String agentId, String threadId) {
 		log.info("Stream processing completed successfully for threadId: {}", threadId);
-		multiTurnContextManager.finishTurn(threadId);
+		multiTurnContextManager.finishTurn(threadId);  // 维护pendingTurns、history
 		StreamContext context = streamContextMap.remove(threadId);
 		if (context != null && !context.isCleaned()) {
 			// 结束 Langfuse span（成功）
 			if (context.getSpan() != null) {
-				langfuseReporter.endSpanSuccess(context.getSpan(), threadId, context.getCollectedOutput());
+				langfuseReporter.endSpanSuccess(context.getSpan(), threadId, context.getCollectedOutput());  // 维护Langfuse span
 			}
 			if (context.getSink() != null && context.getSink().currentSubscriberCount() > 0) {
 				context.getSink()
 					.tryEmitNext(ServerSentEvent.builder(GraphNodeResponse.complete(agentId, threadId))
 						.event(STREAM_EVENT_COMPLETE)
-						.build());
-				context.getSink().tryEmitComplete();
+						.build());  // 维护sink
+				context.getSink().tryEmitComplete();  // 关闭sink
 			}
-			context.cleanup();
+			context.cleanup();  // 清理Disposable；关闭sink
 		}
 	}
 
@@ -320,9 +320,9 @@ public class GraphServiceImpl implements GraphService {
 		}
 		// 文本标记符号不返回给前端
 		if (!isTypeSign) {
-			context.appendOutput(chunk);
-			if (PlannerNode.class.getSimpleName().equals(node)) {
-				multiTurnContextManager.appendPlannerChunk(threadId, chunk);
+			context.appendOutput(chunk);  // 收集流式输出内容，用于 Langfuse 上报
+			if (PlannerNode.class.getSimpleName().equals(node)) {  // 计划节点
+				multiTurnContextManager.appendPlannerChunk(threadId, chunk);  // 每一轮chunk进行拼接
 			}
 			GraphNodeResponse response = GraphNodeResponse.builder()
 				.agentId(request.getAgentId())
@@ -332,7 +332,7 @@ public class GraphServiceImpl implements GraphService {
 				.textType(textType)
 				.build();
 			// 检查发送是否成功，如果失败说明客户端已断开
-			Sinks.EmitResult result = context.getSink().tryEmitNext(ServerSentEvent.builder(response).build());
+			Sinks.EmitResult result = context.getSink().tryEmitNext(ServerSentEvent.builder(response).build());  // 将response写入到sink
 			if (result.isFailure()) {
 				log.warn("Failed to emit data to sink for threadId: {}, result: {}. Stopping stream processing.",
 						threadId, result);

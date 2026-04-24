@@ -182,22 +182,22 @@ public class DataAgentConfiguration implements DisposableBean {
 		};
 
 		StateGraph stateGraph = new StateGraph(NL2SQL_GRAPH_NAME, keyStrategyFactory)
-			.addNode(INTENT_RECOGNITION_NODE, nodeBeanUtil.getNodeBeanAsync(IntentRecognitionNode.class))
-			.addNode(EVIDENCE_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(EvidenceRecallNode.class))
-			.addNode(QUERY_ENHANCE_NODE, nodeBeanUtil.getNodeBeanAsync(QueryEnhanceNode.class))
-			.addNode(SCHEMA_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(SchemaRecallNode.class))
-			.addNode(TABLE_RELATION_NODE, nodeBeanUtil.getNodeBeanAsync(TableRelationNode.class))
-			.addNode(FEASIBILITY_ASSESSMENT_NODE, nodeBeanUtil.getNodeBeanAsync(FeasibilityAssessmentNode.class))
-			.addNode(SQL_GENERATE_NODE, nodeBeanUtil.getNodeBeanAsync(SqlGenerateNode.class))
-			.addNode(PLANNER_NODE, nodeBeanUtil.getNodeBeanAsync(PlannerNode.class))
-			.addNode(PLAN_EXECUTOR_NODE, nodeBeanUtil.getNodeBeanAsync(PlanExecutorNode.class))
-			.addNode(SQL_EXECUTE_NODE, nodeBeanUtil.getNodeBeanAsync(SqlExecuteNode.class))
-			.addNode(PYTHON_GENERATE_NODE, nodeBeanUtil.getNodeBeanAsync(PythonGenerateNode.class))
-			.addNode(PYTHON_EXECUTE_NODE, nodeBeanUtil.getNodeBeanAsync(PythonExecuteNode.class))
-			.addNode(PYTHON_ANALYZE_NODE, nodeBeanUtil.getNodeBeanAsync(PythonAnalyzeNode.class))
-			.addNode(REPORT_GENERATOR_NODE, nodeBeanUtil.getNodeBeanAsync(ReportGeneratorNode.class))
-			.addNode(SEMANTIC_CONSISTENCY_NODE, nodeBeanUtil.getNodeBeanAsync(SemanticConsistencyNode.class))
-			.addNode(HUMAN_FEEDBACK_NODE, nodeBeanUtil.getNodeBeanAsync(HumanFeedbackNode.class));
+			.addNode(INTENT_RECOGNITION_NODE, nodeBeanUtil.getNodeBeanAsync(IntentRecognitionNode.class)) // 意图识别节点
+			.addNode(EVIDENCE_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(EvidenceRecallNode.class)) // 搜索查询重写 + 知识库检索。结合多轮对话历史，将用户的<最新>用户输入重写为一个**独立、完整、无歧义**的陈述句，以便后续进行向量库语义检索。
+			.addNode(QUERY_ENHANCE_NODE, nodeBeanUtil.getNodeBeanAsync(QueryEnhanceNode.class))  // 查询改写  对原始提问（最新+历史）+知识  --->澄清-转换-拓展问题
+			.addNode(SCHEMA_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(SchemaRecallNode.class))  // Schema召回（表名+字段） -- 根据用户输入召回相关表 - 根据提取的关键词检索列文档 - 组织模式信息以供后续处理 - 在召回过程中提供流式反馈
+			.addNode(TABLE_RELATION_NODE, nodeBeanUtil.getNodeBeanAsync(TableRelationNode.class))  // 表关系推理。根据 输入+证据 筛选相关表名，从而获取最终Scheme - 推断表与字段之间的关系 - 根据文档构建初始模式 - 基于输入和证据处理模式选择 - 处理针对缺失信息的模式建议
+			.addNode(FEASIBILITY_ASSESSMENT_NODE, nodeBeanUtil.getNodeBeanAsync(FeasibilityAssessmentNode.class))  // 可行性评估节点  --输出【可以规范化查询】还是【需要澄清】
+			.addNode(SQL_GENERATE_NODE, nodeBeanUtil.getNodeBeanAsync(SqlGenerateNode.class))  // 增强型SQL生成节点，采用先进的优化功能处理SQL查询的重新生成。该节点负责： - 多轮SQL优化和细化 - 语法验证和安全分析 - 性能优化和智能缓存 - 处理执行异常和语义一致性故障 - 使用模式建议管理重试逻辑 - 在重新生成过程中提供流式反馈
+			.addNode(PLANNER_NODE, nodeBeanUtil.getNodeBeanAsync(PlannerNode.class))  // 生成计划  -拆分步骤，走 SQL查询节点/Python计算节点/最终汇总节点
+			.addNode(PLAN_EXECUTOR_NODE, nodeBeanUtil.getNodeBeanAsync(PlanExecutorNode.class))  // 计划执行与验证节点。 -先【校验】再【执行】。校验时有问题，将原因带回【PLANNER_NODE】重新计划
+			.addNode(SQL_EXECUTE_NODE, nodeBeanUtil.getNodeBeanAsync(SqlExecuteNode.class))  // SQL执行节点，用于对数据库执行SQL查询。 此节点负责： - 执行由前节点生成的SQL查询 - 处理查询结果和错误 - 在执行过程中向用户提供流式反馈 - 管理逐步累积的结果
+			.addNode(PYTHON_GENERATE_NODE, nodeBeanUtil.getNodeBeanAsync(PythonGenerateNode.class))  // 生成Python代码的节点
+			.addNode(PYTHON_EXECUTE_NODE, nodeBeanUtil.getNodeBeanAsync(PythonExecuteNode.class))  // 根据SQL查询结果生成Python代码，并运行Python代码获取运行结果。
+			.addNode(PYTHON_ANALYZE_NODE, nodeBeanUtil.getNodeBeanAsync(PythonAnalyzeNode.class))  // 根据Python代码的运行结果做总结分析
+			.addNode(REPORT_GENERATOR_NODE, nodeBeanUtil.getNodeBeanAsync(ReportGeneratorNode.class))  // 报告生成节点，该节点根据执行结果创建综合分析报告。该节点负责： - 根据SQL执行结果生成详细的分析报告 - 总结数据见解和发现 - 为用户查询提供全面答案 - 为用户创建结构化的最终输出
+			.addNode(SEMANTIC_CONSISTENCY_NODE, nodeBeanUtil.getNodeBeanAsync(SemanticConsistencyNode.class))  // 语义一致性验证节点，用于检查SQL查询的语义一致性  语义+结构  --该节点负责： - 根据模式和证据验证SQL查询的语义一致性 - 为查询优化提供验证结果 - 处理验证失败并提供建议 - 管理执行计划中的步骤进展
+			.addNode(HUMAN_FEEDBACK_NODE, nodeBeanUtil.getNodeBeanAsync(HumanFeedbackNode.class));  // 用于计划审查和修改的人工反馈节点。
 
 		stateGraph.addEdge(START, INTENT_RECOGNITION_NODE)
 			.addConditionalEdges(INTENT_RECOGNITION_NODE, edge_async(new IntentRecognitionDispatcher()),
@@ -208,7 +208,7 @@ public class DataAgentConfiguration implements DisposableBean {
 			.addConditionalEdges(SCHEMA_RECALL_NODE, edge_async(new SchemaRecallDispatcher()),
 					Map.of(TABLE_RELATION_NODE, TABLE_RELATION_NODE, END, END))
 
-			.addConditionalEdges(TABLE_RELATION_NODE, edge_async(new TableRelationDispatcher()),
+			.addConditionalEdges(TABLE_RELATION_NODE, edge_async(new TableRelationDispatcher()),  // 表关系节点 -> retry/可行性评估节点
 					Map.of(FEASIBILITY_ASSESSMENT_NODE, FEASIBILITY_ASSESSMENT_NODE, END, END, TABLE_RELATION_NODE,
 							TABLE_RELATION_NODE)) // retry
 			.addConditionalEdges(FEASIBILITY_ASSESSMENT_NODE, edge_async(new FeasibilityAssessmentDispatcher()),
@@ -216,7 +216,7 @@ public class DataAgentConfiguration implements DisposableBean {
 
 			// The edge from PlannerNode now goes to PlanExecutorNode for validation and
 			// execution
-			.addEdge(PLANNER_NODE, PLAN_EXECUTOR_NODE)
+			.addEdge(PLANNER_NODE, PLAN_EXECUTOR_NODE)  // 执行计划节点
 			// python nodes
 			.addEdge(PYTHON_GENERATE_NODE, PYTHON_EXECUTE_NODE)
 			.addConditionalEdges(PYTHON_EXECUTE_NODE, edge_async(new PythonExecutorDispatcher(codeExecutorProperties)),
@@ -226,7 +226,7 @@ public class DataAgentConfiguration implements DisposableBean {
 			// The dispatcher at PlanExecutorNode will decide the next step
 			.addConditionalEdges(PLAN_EXECUTOR_NODE, edge_async(new PlanExecutorDispatcher()), Map.of(
 					// If validation fails, go back to PlannerNode to repair
-					PLANNER_NODE, PLANNER_NODE,
+					PLANNER_NODE, PLANNER_NODE,  // 校验失败，返回【PLANNER_NODE】
 					// If validation passes, proceed to the correct execution node
 					SQL_GENERATE_NODE, SQL_GENERATE_NODE, PYTHON_GENERATE_NODE, PYTHON_GENERATE_NODE,
 					REPORT_GENERATOR_NODE, REPORT_GENERATOR_NODE,
@@ -245,7 +245,7 @@ public class DataAgentConfiguration implements DisposableBean {
 			.addEdge(REPORT_GENERATOR_NODE, END)
 			// sql generate and sql execute node
 			.addConditionalEdges(SQL_GENERATE_NODE, nodeBeanUtil.getEdgeBeanAsync(SqlGenerateDispatcher.class),
-					Map.of(SQL_GENERATE_NODE, SQL_GENERATE_NODE, END, END, SEMANTIC_CONSISTENCY_NODE,
+					Map.of(SQL_GENERATE_NODE, SQL_GENERATE_NODE, END, END, SEMANTIC_CONSISTENCY_NODE,  // 重试/结束/语义一致性验证节点
 							SEMANTIC_CONSISTENCY_NODE))
 			.addConditionalEdges(SEMANTIC_CONSISTENCY_NODE, edge_async(new SemanticConsistenceDispatcher()),
 					Map.of(SQL_GENERATE_NODE, SQL_GENERATE_NODE, SQL_EXECUTE_NODE, SQL_EXECUTE_NODE))
@@ -269,7 +269,7 @@ public class DataAgentConfiguration implements DisposableBean {
 	@Bean
 	@ConditionalOnMissingBean(VectorStore.class)
 	@ConditionalOnProperty(name = "spring.ai.vectorstore.type", havingValue = "simple", matchIfMissing = true)
-	public SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingModel) {
+	public SimpleVectorStore simpleVectorStore(EmbeddingModel embeddingModel) {  // 运行在内存中的轻量级向量数据库
 		return SimpleVectorStore.builder(embeddingModel).build();
 	}
 
@@ -430,7 +430,7 @@ public class DataAgentConfiguration implements DisposableBean {
 		}
 	}
 
-	@Bean(name = "token")
+	@Bean(name = "token")  // 基于token数量
 	public TextSplitter textSplitter(DataAgentProperties properties) {
 		DataAgentProperties.TextSplitter textSplitterProps = properties.getTextSplitter();
 		DataAgentProperties.TextSplitter.TokenTextSplitterConfig config = textSplitterProps.getToken();
@@ -462,7 +462,7 @@ public class DataAgentConfiguration implements DisposableBean {
 	 * @param properties 分块配置
 	 * @return SentenceSplitter实例
 	 */
-	@Bean(name = "sentence")
+	@Bean(name = "sentence") // 基于句子，叠加句子重叠数量
 	public TextSplitter sentenceSplitter(DataAgentProperties properties) {
 		DataAgentProperties.TextSplitter textSplitterConfig = properties.getTextSplitter();
 		DataAgentProperties.TextSplitter.SentenceTextSplitterConfig sentenceConfig = textSplitterConfig.getSentence();
@@ -479,7 +479,7 @@ public class DataAgentConfiguration implements DisposableBean {
 	 * @param embeddingModel Embedding 模型
 	 * @return SemanticTextSplitter实例
 	 */
-	@Bean(name = "semantic")
+	@Bean(name = "semantic")  // 分块大小 + 语义相似阈值  --基于Embedding模型
 	public TextSplitter semanticSplitter(DataAgentProperties properties, EmbeddingModel embeddingModel) {
 		DataAgentProperties.TextSplitter textSplitterProps = properties.getTextSplitter();
 		DataAgentProperties.TextSplitter.SemanticTextSplitterConfig config = textSplitterProps.getSemantic();
@@ -496,7 +496,7 @@ public class DataAgentConfiguration implements DisposableBean {
 	 * @param properties 分块配置
 	 * @return ParagraphTextSplitter实例
 	 */
-	@Bean(name = "paragraph")
+	@Bean(name = "paragraph")  // 基于段落边界切分，设置段落重叠字符数
 	public TextSplitter paragraphSplitter(DataAgentProperties properties) {
 		DataAgentProperties.TextSplitter textSplitterProps = properties.getTextSplitter();
 		DataAgentProperties.TextSplitter.ParagraphTextSplitterConfig config = textSplitterProps.getParagraph();

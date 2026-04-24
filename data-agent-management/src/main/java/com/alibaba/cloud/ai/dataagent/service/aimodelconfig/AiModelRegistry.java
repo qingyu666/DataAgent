@@ -32,7 +32,7 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class AiModelRegistry {
+public class AiModelRegistry {  // 模型注册
 
 	private final DynamicModelFactory modelFactory;
 

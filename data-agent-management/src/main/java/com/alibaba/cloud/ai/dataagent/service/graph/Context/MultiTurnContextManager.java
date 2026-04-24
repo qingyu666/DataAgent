@@ -30,22 +30,22 @@ import java.util.stream.Collectors;
 /**
  * Manages multi-turn dialogue context for each thread. The context keeps a lightweight
  * history of user questions and the corresponding planner outputs so downstream prompts
- * can reference prior turns.
+ * can reference prior turns.  // 为每个线程管理多轮对话上下文。该上下文保留了用户问题和相应规划器输出的轻量级历史记录，以便后续提示可以引用之前的轮次。
  */
 @Slf4j
 @Component
 @AllArgsConstructor
-public class MultiTurnContextManager {
+public class MultiTurnContextManager {  // 多轮上下文的管理
 
 	private final DataAgentProperties properties;
 
 	// todo：考虑持久化存储
-	private final Map<String, Deque<ConversationTurn>> history = new ConcurrentHashMap<>();
+	private final Map<String, Deque<ConversationTurn>> history = new ConcurrentHashMap<>();  // 历史轮次
 
-	private final Map<String, PendingTurn> pendingTurns = new ConcurrentHashMap<>();
+	private final Map<String, PendingTurn> pendingTurns = new ConcurrentHashMap<>();  // 当前轮  --同一对话，value都会新生成一个对象（beginTurn方法）
 
 	/**
-	 * Start tracking a new turn for the given thread.
+	 * Start tracking a new turn for the given thread.  // 为给定的线程跟踪一个新的轮次
 	 * @param threadId conversation thread id
 	 * @param userQuestion latest user question
 	 */
@@ -57,7 +57,7 @@ public class MultiTurnContextManager {
 	}
 
 	/**
-	 * Append planner output chunk for the current turn.
+	 * Append planner output chunk for the current turn. // 为当前轮添加输出chunk
 	 * @param threadId conversation thread id
 	 * @param chunk planner streaming chunk
 	 */
@@ -90,7 +90,7 @@ public class MultiTurnContextManager {
 		Deque<ConversationTurn> deque = history.computeIfAbsent(threadId, k -> new ArrayDeque<>());
 		synchronized (deque) {
 			while (deque.size() >= properties.getMaxturnhistory()) {
-				deque.pollFirst();
+				deque.pollFirst();  // 历史暂时保留5条
 			}
 			deque.addLast(new ConversationTurn(pending.userQuestion, trimmedPlan));
 		}
