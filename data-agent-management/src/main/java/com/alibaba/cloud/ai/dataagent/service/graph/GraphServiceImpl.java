@@ -206,9 +206,9 @@ public class GraphServiceImpl implements GraphService {
 				log.debug("StreamContext cleaned before subscription for threadId: {}", threadId);
 				return;
 			}
-			Disposable disposable = nodeOutputFlux.subscribe(output -> handleNodeOutput(graphRequest, output),
-					error -> handleStreamError(agentId, threadId, error),
-					() -> handleStreamComplete(agentId, threadId));
+			Disposable disposable = nodeOutputFlux.subscribe(output -> handleNodeOutput(graphRequest, output), // subscribe方法作用：订阅一个响应式流，并指定三个回调分别处理数据元素、错误和流正常完成。 // 处理输出  --为当前轮拼接回答
+					error -> handleStreamError(agentId, threadId, error), // 处理错误  --从streamContextMap中移除、关闭资源
+					() -> handleStreamComplete(agentId, threadId));  // 处理完成  --将当前轮拼接到历史轮次中去（每轮最多5次）
 			// 原子性地设置 Disposable，如果已经清理则立即释放
 			synchronized (context) {
 				if (context.isCleaned()) {
