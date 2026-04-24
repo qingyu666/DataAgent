@@ -69,11 +69,11 @@ public class PlannerNode implements NodeAction {
 
 	private Flux<ChatResponse> handlePlanGenerate(OverAllState state) {
 		// 获取查询增强节点的输出
-		String canonicalQuery = StateUtil.getCanonicalQuery(state);
+		String canonicalQuery = StateUtil.getCanonicalQuery(state);  // 重写后的查询
 		log.info("Using processed query for planning: {}", canonicalQuery);
 
 		// 检查是否为修复模式
-		String validationError = StateUtil.getStringValue(state, PLAN_VALIDATION_ERROR, null);
+		String validationError = StateUtil.getStringValue(state, PLAN_VALIDATION_ERROR, null); // PlanExecutorNode节点的修复逻辑  --PlanExecutorNode节点会填入
 		if (validationError != null) {
 			log.info("Regenerating plan with user feedback: {}", validationError);
 		}
@@ -83,12 +83,12 @@ public class PlannerNode implements NodeAction {
 
 		// 构建提示参数
 		String semanticModel = (String) state.value(GENEGRATED_SEMANTIC_MODEL_PROMPT).orElse("");
-		SchemaDTO schemaDTO = StateUtil.getObjectValue(state, TABLE_RELATION_OUTPUT, SchemaDTO.class);
+		SchemaDTO schemaDTO = StateUtil.getObjectValue(state, TABLE_RELATION_OUTPUT, SchemaDTO.class); // 相关Scheme
 		String schemaStr = PromptHelper.buildMixMacSqlDbPrompt(schemaDTO, true);
 
 		// 构建用户提示
-		String userPrompt = buildUserPrompt(canonicalQuery, validationError, state);
-		String evidence = StateUtil.getStringValue(state, EVIDENCE);
+		String userPrompt = buildUserPrompt(canonicalQuery, validationError, state);  // 处理validationError
+		String evidence = StateUtil.getStringValue(state, EVIDENCE); // 证据
 
 		// 构建模板参数
 		BeanOutputConverter<Plan> beanOutputConverter = new BeanOutputConverter<>(Plan.class);
@@ -96,7 +96,7 @@ public class PlannerNode implements NodeAction {
 				"semantic_model", semanticModel, "plan_validation_error", formatValidationError(validationError),
 				"format", beanOutputConverter.getFormat());
 		// 生成计划
-		String plannerPrompt = PromptConstant.getPlannerPromptTemplate().render(params);
+		String plannerPrompt = PromptConstant.getPlannerPromptTemplate().render(params);  // planner
 		log.debug("Planner prompt: as follows \n{}\n", plannerPrompt);
 
 		// 调用LLM生成计划

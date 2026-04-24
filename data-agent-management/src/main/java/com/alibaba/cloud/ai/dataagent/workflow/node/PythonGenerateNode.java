@@ -73,8 +73,8 @@ public class PythonGenerateNode implements NodeAction {
 		// Get context
 		SchemaDTO schemaDTO = StateUtil.getObjectValue(state, TABLE_RELATION_OUTPUT, SchemaDTO.class);
 		List<Map<String, String>> sqlResults = StateUtil.hasValue(state, SQL_RESULT_LIST_MEMORY)
-				? StateUtil.getListValue(state, SQL_RESULT_LIST_MEMORY) : new ArrayList<>();
-		boolean codeRunSuccess = StateUtil.getObjectValue(state, PYTHON_IS_SUCCESS, Boolean.class, true);
+				? StateUtil.getListValue(state, SQL_RESULT_LIST_MEMORY) : new ArrayList<>();  // SQL执行结果
+		boolean codeRunSuccess = StateUtil.getObjectValue(state, PYTHON_IS_SUCCESS, Boolean.class, true); // 上次执行不成功
 		int triesCount = StateUtil.getObjectValue(state, PYTHON_TRIES_COUNT, Integer.class, 0);
 
 		String userPrompt = StateUtil.getCanonicalQuery(state);
@@ -101,7 +101,7 @@ public class PythonGenerateNode implements NodeAction {
 		ExecutionStep.ToolParameters toolParameters = executionStep.getToolParameters();
 
 		// Load Python code generation template
-		String systemPrompt = PromptConstant.getPythonGeneratorPromptTemplate()
+		String systemPrompt = PromptConstant.getPythonGeneratorPromptTemplate()  // python-generator
 			.render(Map.of("python_memory", codeExecutorProperties.getLimitMemory().toString(), "python_timeout",
 					codeExecutorProperties.getCodeTimeout(), "database_schema",
 					objectMapper.writeValueAsString(schemaDTO), "sample_input",

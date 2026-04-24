@@ -75,7 +75,7 @@ public class SqlGenerateNode implements NodeAction {
 			Flux<ChatResponse> preFlux = Flux.just(ChatResponseUtil.createResponse(sqlGenerateOutput));
 			Flux<GraphResponse<StreamingOutput>> generator = FluxUtil.createStreamingGeneratorWithMessages(
 					this.getClass(), state, "正在进行重试评估...", "重试评估完成！",
-					retryOutput -> Map.of(SQL_GENERATE_OUTPUT, StateGraph.END, SQL_GENERATE_COUNT, 0), preFlux);
+					retryOutput -> Map.of(SQL_GENERATE_OUTPUT, StateGraph.END, SQL_GENERATE_COUNT, 0), preFlux);  // 超过次数，跳转【END】
 			// reset the sql generate count
 			return Map.of(SQL_GENERATE_OUTPUT, generator);
 		}
@@ -90,9 +90,9 @@ public class SqlGenerateNode implements NodeAction {
 		SqlRetryDto retryDto = StateUtil.getObjectValue(state, SQL_REGENERATE_REASON, SqlRetryDto.class,
 				SqlRetryDto.empty());
 
-		if (retryDto.sqlExecuteFail()) {
+		if (retryDto.sqlExecuteFail()) { // 来自后面节点
 			displayMessage = "检测到SQL执行异常，开始重新生成SQL...";
-			sqlFlux = handleRetryGenerateSql(state, StateUtil.getStringValue(state, SQL_GENERATE_OUTPUT, ""),
+			sqlFlux = handleRetryGenerateSql(state, StateUtil.getStringValue(state, SQL_GENERATE_OUTPUT, ""),  // sql-error-fixer
 					retryDto.reason(), promptForSql);
 		}
 		else if (retryDto.semanticFail()) {
@@ -101,8 +101,8 @@ public class SqlGenerateNode implements NodeAction {
 					retryDto.reason(), promptForSql);
 		}
 		else {
-			displayMessage = "开始生成SQL...";
-			sqlFlux = handleGenerateSql(state, promptForSql);
+			displayMessage = "开始生成SQL...";  // 主分支
+			sqlFlux = handleGenerateSql(state, promptForSql); // new-sql-generate
 		}
 
 		// 准备返回结果，同时需要清除一些状态数据

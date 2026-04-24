@@ -81,7 +81,7 @@ public class PythonAnalyzeNode implements NodeAction {
 			return Map.of(PYTHON_ANALYSIS_NODE_OUTPUT, generator);
 		}
 
-		String systemPrompt = PromptConstant.getPythonAnalyzePromptTemplate()
+		String systemPrompt = PromptConstant.getPythonAnalyzePromptTemplate()  // python-analyze
 			.render(Map.of("python_output", pythonOutput, "user_query", userQuery));
 
 		Flux<ChatResponse> pythonAnalyzeFlux = llmService.callSystem(systemPrompt);

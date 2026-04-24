@@ -147,7 +147,7 @@ public class SqlExecuteNode implements NodeAction {
 				// Execute SQL query and get results immediately
 				ResultSetBO resultSetBO = dbAccessor.executeSqlAndReturnObject(dbConfig, dbQueryParameter);
 				// 调用大模型获取图表配置信息并填充到ResultSetBO中
-				DisplayStyleBO displayStyleBO = enrichResultSetWithChartConfig(state, resultSetBO);
+				DisplayStyleBO displayStyleBO = enrichResultSetWithChartConfig(state, resultSetBO);  // data-view-analyze
 				resultBO.setResultSet(resultSetBO);
 				resultBO.setDisplayStyle(displayStyleBO);
 
@@ -205,7 +205,7 @@ public class SqlExecuteNode implements NodeAction {
 	 * @param state 整体状态
 	 * @param resultSetBO SQL执行结果
 	 */
-	private DisplayStyleBO enrichResultSetWithChartConfig(OverAllState state, ResultSetBO resultSetBO) {
+	private DisplayStyleBO enrichResultSetWithChartConfig(OverAllState state, ResultSetBO resultSetBO) { // data-view-analyze
 		// 创建ResultDisplayStyleBO对象
 		DisplayStyleBO displayStyle = new DisplayStyleBO();
 		if (!this.properties.isEnableSqlResultChart()) {

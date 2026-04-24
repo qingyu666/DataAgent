@@ -43,8 +43,8 @@ public class GraphController {
 
 	private final GraphService graphService;
 
-	@GetMapping(value = "/stream/search", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public Flux<ServerSentEvent<GraphNodeResponse>> streamSearch(@RequestParam("agentId") String agentId,
+	@GetMapping(value = "/stream/search", produces = MediaType.TEXT_EVENT_STREAM_VALUE)  // text/event-stream --SSE 协议 规定的 MIME 类型，用于建立单向、持久的服务器推送通道。
+	public Flux<ServerSentEvent<GraphNodeResponse>> streamSearch(@RequestParam("agentId") String agentId, // 执行流程时调用的方法
 			@RequestParam(value = "threadId", required = false) String threadId, @RequestParam("query") String query,
 			@RequestParam(value = "humanFeedback", required = false) boolean humanFeedback,
 			@RequestParam(value = "humanFeedbackContent", required = false) String humanFeedbackContent,
@@ -68,7 +68,7 @@ public class GraphController {
 			.build();
 		graphService.graphStreamProcess(sink, request);
 
-		return sink.asFlux().filter(sse -> {
+		return sink.asFlux().filter(sse -> { // sink.asFlux() 返回响应流
 			// 1. 如果 event 是 "complete" 或 "error"，直接放行（不管 text 是否为空）
 			if (STREAM_EVENT_COMPLETE.equals(sse.event()) || STREAM_EVENT_ERROR.equals(sse.event())) {
 				return true;

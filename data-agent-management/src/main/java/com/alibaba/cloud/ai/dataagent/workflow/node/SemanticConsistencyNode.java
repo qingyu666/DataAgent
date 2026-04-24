@@ -62,7 +62,7 @@ public class SemanticConsistencyNode implements NodeAction {
 		String dialect = StateUtil.getStringValue(state, DB_DIALECT_TYPE);
 		// Get current execution step and SQL query
 		String sql = StateUtil.getStringValue(state, SQL_GENERATE_OUTPUT);
-		String userQuery = StateUtil.getCanonicalQuery(state);
+		String userQuery = StateUtil.getCanonicalQuery(state);  // 用户改写后的查询
 
 		SemanticConsistencyDTO semanticConsistencyDTO = SemanticConsistencyDTO.builder()
 			.dialect(dialect)
@@ -73,7 +73,7 @@ public class SemanticConsistencyNode implements NodeAction {
 			.evidence(evidence)
 			.build();
 		log.info("Starting semantic consistency validation - SQL: {}", sql);
-		Flux<ChatResponse> validationResultFlux = nl2SqlService.performSemanticConsistency(semanticConsistencyDTO);
+		Flux<ChatResponse> validationResultFlux = nl2SqlService.performSemanticConsistency(semanticConsistencyDTO);  // semantic-consistency
 
 		Flux<GraphResponse<StreamingOutput>> generator = FluxUtil.createStreamingGeneratorWithMessages(this.getClass(),
 				state, "开始语义一致性校验", "语义一致性校验完成", validationResult -> {

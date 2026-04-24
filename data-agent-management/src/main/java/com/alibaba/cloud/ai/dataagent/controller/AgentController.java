@@ -48,7 +48,7 @@ public class AgentController {
 
 	/** Get agent list */
 	@GetMapping("/list")
-	public List<Agent> list(@RequestParam(value = "status", required = false) String status,
+	public List<Agent> list(@RequestParam(value = "status", required = false) String status,  // agent管理接口
 			@RequestParam(value = "keyword", required = false) String keyword) {
 		List<Agent> result;
 		if (StringUtils.isNotBlank(keyword)) {

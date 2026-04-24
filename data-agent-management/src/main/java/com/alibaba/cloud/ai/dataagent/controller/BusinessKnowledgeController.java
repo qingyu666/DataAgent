@@ -33,7 +33,7 @@ import java.util.List;
 @RequestMapping("/api/business-knowledge")
 @CrossOrigin(origins = "*")
 @AllArgsConstructor
-public class BusinessKnowledgeController {
+public class BusinessKnowledgeController {  // 业务知识相关Controller
 
 	private final BusinessKnowledgeService businessKnowledgeService;
 

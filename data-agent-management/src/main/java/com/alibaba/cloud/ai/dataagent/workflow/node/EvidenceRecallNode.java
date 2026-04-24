@@ -88,7 +88,7 @@ public class EvidenceRecallNode implements NodeAction {
 				Flux.just(ChatResponseUtil.createPureResponse(TextType.JSON.getEndSign()),
 						ChatResponseUtil.createResponse("\n查询重写完成！")),
 				result -> {
-					resultMap.putAll(getEvidences(result, agentId, evidenceDisplaySink));
+					resultMap.putAll(getEvidences(result, agentId, evidenceDisplaySink));  // 获取 检索到的知识
 					return resultMap;
 				});
 
@@ -100,7 +100,7 @@ public class EvidenceRecallNode implements NodeAction {
 
 	private Map<String, Object> getEvidences(String llmOutput, String agentId, Sinks.Many<String> sink) {
 		try {
-			String standaloneQuery = extractStandaloneQuery(llmOutput);
+			String standaloneQuery = extractStandaloneQuery(llmOutput);  // 改写后的句子
 
 			if (null == standaloneQuery || standaloneQuery.isEmpty()) {
 				log.debug("No standalone query from LLM output");
@@ -112,7 +112,7 @@ public class EvidenceRecallNode implements NodeAction {
 			outputRewrittenQuery(standaloneQuery, sink);
 
 			// 获取业务知识和智能体知识文档
-			DocumentRetrievalResult retrievalResult = retrieveDocuments(agentId, standaloneQuery);
+			DocumentRetrievalResult retrievalResult = retrieveDocuments(agentId, standaloneQuery);  // 查知识库 --RAG
 
 			// 检查是否有证据文档
 			if (retrievalResult.allDocuments().isEmpty()) {

@@ -116,12 +116,12 @@ public class TableRelationNode implements NodeAction {
 		resultMap.put(TABLE_RELATION_RETRY_COUNT, 0);
 		resultMap.put(TABLE_RELATION_EXCEPTION_OUTPUT, "");
 
-		Flux<ChatResponse> schemaFlux = processSchemaSelection(initialSchema, canonicalQuery, evidence, state,
+		Flux<ChatResponse> schemaFlux = processSchemaSelection(initialSchema, canonicalQuery, evidence, state,  // mix-selector
 				agentDbConfig, result -> {
 					log.info("[{}] Schema processing result: {}", this.getClass().getSimpleName(), result);
 					resultMap.put(TABLE_RELATION_OUTPUT, result);
 
-					// 从最终的SchemaDTO中获取表名列表
+					// 从最终的SchemaDTO中获取[表名列表]
 					List<String> tableNames = result.getTable().stream().map(TableDTO::getName).toList();
 
 					// 根据agentId和表名列表获取语义模型
@@ -129,7 +129,7 @@ public class TableRelationNode implements NodeAction {
 						.getByAgentIdAndTableNames(Long.valueOf(agentIdStr), tableNames);
 
 					// 构建语义模型提示并存储到resultMap中
-					String semanticModelPrompt = buildSemanticModelPrompt(semanticModels);
+					String semanticModelPrompt = buildSemanticModelPrompt(semanticModels);  // semantic-model
 					resultMap.put(GENEGRATED_SEMANTIC_MODEL_PROMPT, semanticModelPrompt);
 				});
 

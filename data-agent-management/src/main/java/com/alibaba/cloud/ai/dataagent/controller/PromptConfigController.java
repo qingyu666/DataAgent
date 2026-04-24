@@ -51,7 +51,7 @@ public class PromptConfigController {
 	 * @return operation result
 	 */
 	@PostMapping("/save")
-	public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody PromptConfigDTO configDTO) {
+	public ResponseEntity<Map<String, Object>> saveConfig(@RequestBody PromptConfigDTO configDTO) { // 用户配置的Prompt
 		logger.info("保存提示词优化配置请求：{}", configDTO);
 
 		UserPromptConfig savedConfig = promptConfigService.saveOrUpdateConfig(configDTO);

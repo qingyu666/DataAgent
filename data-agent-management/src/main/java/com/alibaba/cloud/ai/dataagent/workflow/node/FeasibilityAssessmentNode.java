@@ -45,7 +45,7 @@ public class FeasibilityAssessmentNode implements NodeAction {
 	@Override
 	public Map<String, Object> apply(OverAllState state) throws Exception {
 		// 获取canonical_query
-		String canonicalQuery = StateUtil.getCanonicalQuery(state);
+		String canonicalQuery = StateUtil.getCanonicalQuery(state);  // 规范化的提问
 
 		// 获取召回的Schema
 		SchemaDTO recalledSchema = StateUtil.getObjectValue(state, TABLE_RELATION_OUTPUT, SchemaDTO.class);
@@ -56,7 +56,7 @@ public class FeasibilityAssessmentNode implements NodeAction {
 		String multiTurn = StateUtil.getStringValue(state, MULTI_TURN_CONTEXT, "(无)");
 
 		// 构建可行性评估提示词
-		String prompt = PromptHelper.buildFeasibilityAssessmentPrompt(canonicalQuery, recalledSchema, evidence,
+		String prompt = PromptHelper.buildFeasibilityAssessmentPrompt(canonicalQuery, recalledSchema, evidence,  // feasibility-assessment
 				multiTurn);
 		log.debug("Built feasibility assessment prompt as follows \n {} \n", prompt);
 

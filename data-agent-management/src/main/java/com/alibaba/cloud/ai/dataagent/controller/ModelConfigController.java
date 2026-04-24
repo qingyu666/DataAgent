@@ -38,7 +38,7 @@ public class ModelConfigController {
 
 	// 1. 获取列表
 	@GetMapping("/list")
-	public ApiResponse<List<ModelConfigDTO>> list() {
+	public ApiResponse<List<ModelConfigDTO>> list() {  // 模型配置相关
 		try {
 			return ApiResponse.success("获取模型配置列表成功", modelConfigDataService.listConfigs());
 		}

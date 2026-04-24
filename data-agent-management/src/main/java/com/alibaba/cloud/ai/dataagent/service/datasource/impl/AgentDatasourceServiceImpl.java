@@ -84,7 +84,7 @@ public class AgentDatasourceServiceImpl implements AgentDatasourceService {
 	@Override
 	public List<AgentDatasource> getAgentDatasource(Long agentId) {
 		Assert.notNull(agentId, "Agent ID cannot be null");
-		List<AgentDatasource> adentDatasources = agentDatasourceMapper.selectByAgentIdWithDatasource(agentId);
+		List<AgentDatasource> adentDatasources = agentDatasourceMapper.selectByAgentIdWithDatasource(agentId);  // 获取Agent相关的数据源、表名
 
 		// Manually fill in the data source information (since MyBatis Plus does not
 		// directly support complex join query result mapping)

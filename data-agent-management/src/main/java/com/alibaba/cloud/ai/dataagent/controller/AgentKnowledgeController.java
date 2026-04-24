@@ -45,7 +45,7 @@ import java.util.List;
 @RequestMapping("/api/agent-knowledge")
 @CrossOrigin(origins = "*")
 @AllArgsConstructor
-public class AgentKnowledgeController {
+public class AgentKnowledgeController {  // 智能体知识库相关
 
 	private final AgentKnowledgeService agentKnowledgeService;
 

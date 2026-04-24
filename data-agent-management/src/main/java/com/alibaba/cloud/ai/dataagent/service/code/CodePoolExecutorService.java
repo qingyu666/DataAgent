@@ -21,7 +21,7 @@ package com.alibaba.cloud.ai.dataagent.service.code;
  * @author vlsmb
  * @since 2025/7/12
  */
-public interface CodePoolExecutorService {
+public interface CodePoolExecutorService { // 运行Python任务的容器池接口
 
 	TaskResponse runTask(TaskRequest request);
 

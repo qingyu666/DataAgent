@@ -68,7 +68,7 @@ public class PlanExecutorNode implements NodeAction {
 
 		// Validate each execution step
 		for (ExecutionStep step : plan.getExecutionPlan()) {
-			String validationResult = validateExecutionStep(step);
+			String validationResult = validateExecutionStep(step);  // 校验，查看上一步的生成是否有效
 			if (validationResult != null) {
 				return buildValidationResult(state, false, validationResult);
 			}
