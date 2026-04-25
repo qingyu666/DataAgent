@@ -103,8 +103,8 @@ public class GraphServiceImpl implements GraphService {
 			return;
 		}
 		log.info("Stopping stream processing for threadId: {}", threadId);
-		multiTurnContextManager.discardPending(threadId);
-		StreamContext context = streamContextMap.remove(threadId);
+		multiTurnContextManager.discardPending(threadId);  // 上下轮管理
+		StreamContext context = streamContextMap.remove(threadId);  // 上下文map
 		if (context != null) {
 			// 客户端断开，结束 Langfuse span
 			if (context.getSpan() != null && context.getSpan().isRecording()) {
@@ -137,13 +137,13 @@ public class GraphServiceImpl implements GraphService {
 		Span span = langfuseReporter.startLLMSpan("graph-stream", graphRequest);
 		context.setSpan(span);
 
-		String multiTurnContext = multiTurnContextManager.buildContext(threadId);  // 构建上下文  --多轮对话存在内存中，默认保留5轮内容
+		String multiTurnContext = multiTurnContextManager.buildContext(threadId);  // 构建历史对话内容（）  --多轮对话存在内存中，默认保留5轮内容
 		multiTurnContextManager.beginTurn(threadId, query); // 为给定的线程跟踪一个新的轮次。  --当前轮存入内存
-		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(
+		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream( // 开始执行graph【主流程】
 				Map.of(IS_ONLY_NL2SQL, nl2sqlOnly, INPUT_KEY, query, AGENT_ID, agentId, HUMAN_REVIEW_ENABLED,
-						humanReviewEnabled, MULTI_TURN_CONTEXT, multiTurnContext, TRACE_THREAD_ID, threadId),  // 参数
+						humanReviewEnabled, MULTI_TURN_CONTEXT, multiTurnContext, TRACE_THREAD_ID, threadId),
 				RunnableConfig.builder().threadId(threadId).build());
-		subscribeToFlux(context, nodeOutputFlux, graphRequest, agentId, threadId);
+		subscribeToFlux(context, nodeOutputFlux, graphRequest, agentId, threadId);  // 订阅
 	}
 
 	private void handleHumanFeedback(GraphRequest graphRequest) {
@@ -256,7 +256,7 @@ public class GraphServiceImpl implements GraphService {
 	 */
 	private void handleStreamComplete(String agentId, String threadId) {
 		log.info("Stream processing completed successfully for threadId: {}", threadId);
-		multiTurnContextManager.finishTurn(threadId);  // 维护pendingTurns、history
+		multiTurnContextManager.finishTurn(threadId);  // 维护pendingTurns、history  --将本轮对话收集来的plan节点的文本，拼接并存到history中
 		StreamContext context = streamContextMap.remove(threadId);
 		if (context != null && !context.isCleaned()) {
 			// 结束 Langfuse span（成功）
@@ -322,7 +322,7 @@ public class GraphServiceImpl implements GraphService {
 		if (!isTypeSign) {
 			context.appendOutput(chunk);  // 收集流式输出内容，用于 Langfuse 上报
 			if (PlannerNode.class.getSimpleName().equals(node)) {  // 计划节点
-				multiTurnContextManager.appendPlannerChunk(threadId, chunk);  // 每一轮chunk进行拼接
+				multiTurnContextManager.appendPlannerChunk(threadId, chunk);  // 每一次chunk进行拼接
 			}
 			GraphNodeResponse response = GraphNodeResponse.builder()
 				.agentId(request.getAgentId())

@@ -55,7 +55,7 @@ public class GraphController {
 		response.getHeaders().add("Connection", "keep-alive");
 		response.getHeaders().add("Access-Control-Allow-Origin", "*");
 
-		Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink = Sinks.many().unicast().onBackpressureBuffer();
+		Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink = Sinks.many().unicast().onBackpressureBuffer(); //
 
 		GraphRequest request = GraphRequest.builder()
 			.agentId(agentId)
@@ -76,20 +76,20 @@ public class GraphController {
 			// 判断字符串是否为空
 			return sse.data() != null && sse.data().getText() != null && !sse.data().getText().isEmpty();
 		})
-			.doOnSubscribe(subscription -> log.info("Client subscribed to stream, threadId: {}", request.getThreadId()))
-			.doOnCancel(() -> {
+			.doOnSubscribe(subscription -> log.info("Client subscribed to stream, threadId: {}", request.getThreadId()))  // 当有第一个（也是唯一一个）客户端订阅该 Flux 时触发，记录日志
+			.doOnCancel(() -> {  // 当客户端主动断开连接（如浏览器关闭、网络中断）导致订阅被取消时触发
 				log.info("Client disconnected from stream, threadId: {}", request.getThreadId());
 				if (request.getThreadId() != null) {
 					graphService.stopStreamProcessing(request.getThreadId());
 				}
 			})
-			.doOnError(e -> {
+			.doOnError(e -> {  // 当流在推送过程中发生异常时触发
 				log.error("Error occurred during streaming, threadId: {}: ", request.getThreadId(), e);
 				if (request.getThreadId() != null) {
 					graphService.stopStreamProcessing(request.getThreadId());
 				}
 			})
-			.doOnComplete(() -> log.info("Stream completed successfully, threadId: {}", request.getThreadId()));
+			.doOnComplete(() -> log.info("Stream completed successfully, threadId: {}", request.getThreadId()));  // 当流正常结束（发射了 complete 事件且没有错误）时触发，仅记录完成日志。
 	}
 
 }
