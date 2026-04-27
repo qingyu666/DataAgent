@@ -59,7 +59,7 @@ public class DocumentConverterUtil {
 	public static Document convertColumnToDocument(Integer datasourceId, TableInfoBO tableInfoBO,
 			ColumnInfoBO columnInfoBO) {
 		String text = StringUtils.isBlank(columnInfoBO.getDescription()) ? columnInfoBO.getName()
-				: columnInfoBO.getDescription();
+				: columnInfoBO.getDescription();  // 字段描述
 		Map<String, Object> metadata = new HashMap<>();
 		metadata.put("name", columnInfoBO.getName());
 		metadata.put("tableName", tableInfoBO.getName());

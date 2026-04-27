@@ -68,7 +68,7 @@ public class AgentKnowledgeServiceImpl implements AgentKnowledgeService {
 		if (createKnowledgeDto.getType().equals(KnowledgeType.DOCUMENT.getCode())) {
 			// 将文件保存到磁盘
 			try {
-				storagePath = fileStorageService.storeFile(createKnowledgeDto.getFile(), AGENT_KNOWLEDGE_FILE_PATH);
+				storagePath = fileStorageService.storeFile(createKnowledgeDto.getFile(), AGENT_KNOWLEDGE_FILE_PATH);  // data-agent/agent-knowledge/bef86dc2-d1e1-42b1-8076-d189cd98d3c5.pdf
 			}
 			catch (Exception e) {
 				log.error("Failed to store file, agentId:{} title:{} type:{} ", createKnowledgeDto.getAgentId(),
@@ -86,7 +86,7 @@ public class AgentKnowledgeServiceImpl implements AgentKnowledgeService {
 		}
 
 		eventPublisher
-			.publishEvent(new AgentKnowledgeEmbeddingEvent(this, knowledge.getId(), knowledge.getSplitterType()));
+			.publishEvent(new AgentKnowledgeEmbeddingEvent(this, knowledge.getId(), knowledge.getSplitterType()));  // 发送事件对象，通知其他组件开始执行知识库的向量化处理  com.alibaba.cloud.ai.dataagent.event.AgentKnowledgeEventListener.handleEmbeddingEvent
 		log.info("Knowledge created and event published. Id: {}, splitterType: {}", knowledge.getId(),
 				knowledge.getSplitterType());
 

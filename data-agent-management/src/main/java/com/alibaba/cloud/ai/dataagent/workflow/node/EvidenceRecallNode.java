@@ -73,7 +73,7 @@ public class EvidenceRecallNode implements NodeAction {
 
 		// 构建查询重写提示
 		// 不需要扩展为多个子查询，因为此时LLM不能理解不同公司的个性化业务知识，比如 PV,KMV等专业名词，扩展反而引入噪音。
-		String prompt = PromptHelper.buildEvidenceQueryRewritePrompt(multiTurn, question);
+		String prompt = PromptHelper.buildEvidenceQueryRewritePrompt(multiTurn, question); // evidence-query-rewrite
 		log.debug("Built evidence-query-rewrite prompt as follows \n {} \n", prompt);
 
 		// 调用LLM进行查询重写
@@ -111,8 +111,8 @@ public class EvidenceRecallNode implements NodeAction {
 			// 输出重写后的查询
 			outputRewrittenQuery(standaloneQuery, sink);
 
-			// 获取业务知识和智能体知识文档
-			DocumentRetrievalResult retrievalResult = retrieveDocuments(agentId, standaloneQuery);  // 查知识库 --RAG
+			// 获取业务知识和智能体知识文档  // --知识库文档存的逻辑：com.alibaba.cloud.ai.dataagent.controller.AgentKnowledgeController.createKnowledge
+			DocumentRetrievalResult retrievalResult = retrieveDocuments(agentId, standaloneQuery);  // 查知识库 --RAG --业务名词: %s, 说明: %s, 同义词: %s --存的逻辑：com.alibaba.cloud.ai.dataagent.controller.BusinessKnowledgeController.refreshAllKnowledgeToVectorStore
 
 			// 检查是否有证据文档
 			if (retrievalResult.allDocuments().isEmpty()) {
@@ -123,7 +123,7 @@ public class EvidenceRecallNode implements NodeAction {
 
 			// 构建证据内容
 			String evidence = buildFormattedEvidenceContent(retrievalResult.businessTermDocuments(),
-					retrievalResult.agentKnowledgeDocuments());
+					retrievalResult.agentKnowledgeDocuments());  // 1. [来源: 2025Q3报告-销售数据.md] ...华东地区的增长主要来自于核心用户...   2. [来源: 客服FAQ] Q: 退款怎么算? A: 只统计已入库退货...
 			log.info("Evidence content built as follows \n {} \n", evidence);
 			// 输出证据内容
 			outputEvidenceContent(retrievalResult.allDocuments(), sink);

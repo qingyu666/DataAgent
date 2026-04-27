@@ -42,7 +42,7 @@ public class AgentKnowledgeEventListener {
 	 */
 	@Async("dbOperationExecutor")
 	@TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-	public void handleEmbeddingEvent(AgentKnowledgeEmbeddingEvent event) {
+	public void handleEmbeddingEvent(AgentKnowledgeEmbeddingEvent event) {  // com.alibaba.cloud.ai.dataagent.service.knowledge.AgentKnowledgeServiceImpl.createKnowledge
 		log.info("Received AgentKnowledgeEmbeddingEvent. agentKnowledgeId: {}", event.getKnowledgeId());
 		Integer id = event.getKnowledgeId();
 

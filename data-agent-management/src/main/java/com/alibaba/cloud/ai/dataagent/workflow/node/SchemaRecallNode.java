@@ -99,10 +99,10 @@ public class SchemaRecallNode implements NodeAction {
 
 		// Execute business logic first - recall schema information immediately
 		List<Document> tableDocuments = new ArrayList<>(
-				schemaService.getTableDocumentsByDatasource(datasourceId, input));  // 根据datasourceId获取表名信息  --查向量数据库
+				schemaService.getTableDocumentsByDatasource(datasourceId, input));  // 根据datasourceId获取【表信息】  --查向量数据库  --存的逻辑：com.alibaba.cloud.ai.dataagent.service.schema.SchemaServiceImpl.schema
 		// extract table names
 		List<String> recalledTableNames = extractTableName(tableDocuments); // 所有表名
-		List<Document> columnDocuments = schemaService.getColumnDocumentsByTableName(datasourceId, recalledTableNames);  // 获取字段信息  --查向量数据库
+		List<Document> columnDocuments = schemaService.getColumnDocumentsByTableName(datasourceId, recalledTableNames);  // 获取【字段信息】  --查向量数据库
 
 		String failMessage = """
 				\n 未检索到相关数据表

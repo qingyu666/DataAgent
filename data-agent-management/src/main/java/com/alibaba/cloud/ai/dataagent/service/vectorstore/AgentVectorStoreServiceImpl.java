@@ -81,13 +81,13 @@ public class AgentVectorStoreServiceImpl implements AgentVectorStoreService {
 			.build();
 
 		if (dataAgentProperties.getVectorStore().isEnableHybridSearch() && hybridRetrievalStrategy.isPresent()) {
-			return hybridRetrievalStrategy.get().retrieve(hybridRequest);
+			return hybridRetrievalStrategy.get().retrieve(hybridRequest);  // SimpleVectorStore
 		}
 		log.debug("Hybrid search is not enabled. use vector-search only");
 		List<Document> results = vectorStore.similaritySearch(hybridRequest.toVectorSearchRequest());
 		log.debug("Search completed with vectorType: {}, found {} documents for SearchRequest: {}",
 				searchRequest.getDocVectorType(), results.size(), searchRequest);
-		return results;
+		return results;  // SimpleVectorStore
 
 	}
 

@@ -28,7 +28,7 @@ import static com.alibaba.cloud.ai.dataagent.constant.Constant.TABLE_RELATION_NO
 import static com.alibaba.cloud.ai.graph.StateGraph.END;
 
 @Slf4j
-public class SchemaRecallDispatcher implements EdgeAction {
+public class SchemaRecallDispatcher implements EdgeAction {  // 初步召回失败，直接返回
 
 	@Override
 	public String apply(OverAllState state) throws Exception {

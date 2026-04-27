@@ -260,7 +260,7 @@ public class PromptHelper {
 		BeanOutputConverter<QueryEnhanceOutputDTO> beanOutputConverter = new BeanOutputConverter<>(
 				QueryEnhanceOutputDTO.class);
 		params.put("format", beanOutputConverter.getFormat());
-		return PromptConstant.getQueryEnhancementPromptTemplate().render(params);
+		return PromptConstant.getQueryEnhancementPromptTemplate().render(params);  // query-enhancement
 	}
 
 	public static String buildDataViewAnalysisPrompt() {

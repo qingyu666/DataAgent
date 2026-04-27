@@ -50,7 +50,7 @@ public class IntentRecognitionNode implements NodeAction {
 	private final JsonParseUtil jsonParseUtil;
 
 	@Override
-	public Map<String, Object> apply(OverAllState state) throws Exception {
+	public Map<String, Object> apply(OverAllState state) throws Exception {  // intent-recognition
 
 		// 获取用户输入
 		String userInput = StateUtil.getStringValue(state, INPUT_KEY);

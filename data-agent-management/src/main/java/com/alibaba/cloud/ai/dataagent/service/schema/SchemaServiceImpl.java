@@ -170,8 +170,8 @@ public class SchemaServiceImpl implements SchemaService {
 			log.info("Successfully processed all tables for datasource: {}", datasourceId);
 
 			// 转换为文档
-			List<Document> columnDocs = convertColumnsToDocuments(datasourceId, tables);
-			List<Document> tableDocs = convertTablesToDocuments(datasourceId, tables);
+			List<Document> columnDocs = convertColumnsToDocuments(datasourceId, tables);  // 字段描述是向量字段，其他字段是标量字段。
+			List<Document> tableDocs = convertTablesToDocuments(datasourceId, tables);  // 表描述是向量字段，其他字段是标量字段。
 
 			// 存储文档
 			log.info("Storing  columns and {} tables for datasource: {}", columnDocs.size(), tableDocs.size(),

@@ -53,7 +53,7 @@ public class QueryEnhanceNode implements NodeAction {
 		String userInput = StateUtil.getStringValue(state, INPUT_KEY);
 		log.info("User input for query enhance: {}", userInput);
 
-		String evidence = StateUtil.getStringValue(state, EVIDENCE);
+		String evidence = StateUtil.getStringValue(state, EVIDENCE);  // 证据
 		String multiTurn = StateUtil.getStringValue(state, MULTI_TURN_CONTEXT, "(无)");
 
 		// 构建查询处理提示

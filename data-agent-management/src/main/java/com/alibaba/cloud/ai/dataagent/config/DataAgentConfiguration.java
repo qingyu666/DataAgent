@@ -184,8 +184,8 @@ public class DataAgentConfiguration implements DisposableBean {
 		StateGraph stateGraph = new StateGraph(NL2SQL_GRAPH_NAME, keyStrategyFactory)
 			.addNode(INTENT_RECOGNITION_NODE, nodeBeanUtil.getNodeBeanAsync(IntentRecognitionNode.class)) // 意图识别节点
 			.addNode(EVIDENCE_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(EvidenceRecallNode.class)) // 搜索查询重写 + 知识库检索。结合多轮对话历史，将用户的<最新>用户输入重写为一个**独立、完整、无歧义**的陈述句，以便后续进行向量库语义检索。
-			.addNode(QUERY_ENHANCE_NODE, nodeBeanUtil.getNodeBeanAsync(QueryEnhanceNode.class))  // 查询改写  对原始提问（最新+历史）+知识  --->澄清-转换-拓展问题
-			.addNode(SCHEMA_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(SchemaRecallNode.class))  // Schema召回（表名+字段） -- 根据用户输入召回相关表 - 根据提取的关键词检索列文档 - 组织模式信息以供后续处理 - 在召回过程中提供流式反馈
+			.addNode(QUERY_ENHANCE_NODE, nodeBeanUtil.getNodeBeanAsync(QueryEnhanceNode.class))  // 查询增强  对原始提问（最新+历史）+知识  --->澄清-转换-拓展问题
+			.addNode(SCHEMA_RECALL_NODE, nodeBeanUtil.getNodeBeanAsync(SchemaRecallNode.class))  // Schema召回（表名+字段） -- 根据用户输入召回相关表结构信息 及 字段信息
 			.addNode(TABLE_RELATION_NODE, nodeBeanUtil.getNodeBeanAsync(TableRelationNode.class))  // 表关系推理。根据 输入+证据 筛选相关表名，从而获取最终Scheme - 推断表与字段之间的关系 - 根据文档构建初始模式 - 基于输入和证据处理模式选择 - 处理针对缺失信息的模式建议
 			.addNode(FEASIBILITY_ASSESSMENT_NODE, nodeBeanUtil.getNodeBeanAsync(FeasibilityAssessmentNode.class))  // 可行性评估节点  --输出【可以规范化查询】还是【需要澄清】
 			.addNode(SQL_GENERATE_NODE, nodeBeanUtil.getNodeBeanAsync(SqlGenerateNode.class))  // 增强型SQL生成节点，采用先进的优化功能处理SQL查询的重新生成。该节点负责： - 多轮SQL优化和细化 - 语法验证和安全分析 - 性能优化和智能缓存 - 处理执行异常和语义一致性故障 - 使用模式建议管理重试逻辑 - 在重新生成过程中提供流式反馈

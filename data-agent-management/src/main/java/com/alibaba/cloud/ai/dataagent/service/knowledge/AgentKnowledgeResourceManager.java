@@ -60,7 +60,7 @@ public class AgentKnowledgeResourceManager {
 			processQaKnowledge(agentKnowledge);
 		}
 		else if (KnowledgeType.DOCUMENT.equals(agentKnowledge.getType())) {
-			processDocumentKnowledge(agentKnowledge);
+			processDocumentKnowledge(agentKnowledge);  // 进行分片：com.alibaba.cloud.ai.dataagent.splitter
 		}
 		else {
 			throw new RuntimeException("Unsupported KnowledgeType: " + agentKnowledge.getType());
@@ -76,7 +76,7 @@ public class AgentKnowledgeResourceManager {
 	private void processDocumentKnowledge(AgentKnowledge knowledge) {
 
 		// 处理文档
-		List<Document> documents = getAndSplitDocument(knowledge.getFilePath(), knowledge.getSplitterType());
+		List<Document> documents = getAndSplitDocument(knowledge.getFilePath(), knowledge.getSplitterType());  // --切分com.alibaba.cloud.ai.dataagent.splitter
 		if (documents == null || documents.isEmpty()) {
 			log.error("No documents extracted from file: knowledgeId={}, filePath={}", knowledge.getId(),
 					knowledge.getFilePath());
@@ -106,7 +106,7 @@ public class AgentKnowledgeResourceManager {
 		TextSplitter splitter = textSplitterFactory.getSplitter(splitterType);
 		log.info("Using splitter type: {} for document splitting", splitterType);
 
-		return splitter.apply(documents);
+		return splitter.apply(documents);  // com.alibaba.cloud.ai.dataagent.splitter
 	}
 
 	/**
