@@ -99,7 +99,7 @@ public class SchemaServiceImpl implements SchemaService {
 			.orElse(null);
 
 		// 如果外键关系是"订单表.订单ID=订单详情表.订单ID"，那么 relatedNamesFromForeignKeys
-		// 将包含"订单表.订单ID"和"订单详情表.订单ID"
+		// 将包含"订单表.订单ID"和"订单详情表.订单ID"  --从表Scheme中提取的，即表Scheme中配置的
 		Set<String> relatedNamesFromForeignKeys = extractRelatedNamesFromForeignKeys(mutableTableDocuments);
 
 		// 通过外键加载缺失的表和列

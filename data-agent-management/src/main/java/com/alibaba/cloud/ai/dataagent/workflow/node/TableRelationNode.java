@@ -104,11 +104,11 @@ public class TableRelationNode implements NodeAction {
 		// Execute business logic first - get final result immediately
 		DbConfigBO agentDbConfig = databaseUtil.getAgentDbConfig(Long.valueOf(agentIdStr));
 
-		List<String> logicalForeignKeys = getLogicalForeignKeys(Long.valueOf(agentIdStr), tableDocuments);
+		List<String> logicalForeignKeys = getLogicalForeignKeys(Long.valueOf(agentIdStr), tableDocuments);  // 逻辑外键，查表获取
 		log.info("Found {} logical foreign keys for agent: {}", logicalForeignKeys.size(), agentIdStr);
 
 		SchemaDTO initialSchema = buildInitialSchema(agentIdStr, columnDocuments, tableDocuments, agentDbConfig,
-				logicalForeignKeys);
+				logicalForeignKeys);  // 包含在Scheme中配置的外键 和 页面中选中并存表的外键？
 
 		Map<String, Object> resultMap = new HashMap<>();
 		// 将 DB_DIALECT_TYPE 添加到 resultMap，确保它在 generator 完成时被写入 state
@@ -116,12 +116,12 @@ public class TableRelationNode implements NodeAction {
 		resultMap.put(TABLE_RELATION_RETRY_COUNT, 0);
 		resultMap.put(TABLE_RELATION_EXCEPTION_OUTPUT, "");
 
-		Flux<ChatResponse> schemaFlux = processSchemaSelection(initialSchema, canonicalQuery, evidence, state,  // mix-selector
+		Flux<ChatResponse> schemaFlux = processSchemaSelection(initialSchema, canonicalQuery, evidence, state,  // mix-selector  --根据用户输入、证据等筛选本次使用到的表的表信息
 				agentDbConfig, result -> {
 					log.info("[{}] Schema processing result: {}", this.getClass().getSimpleName(), result);
 					resultMap.put(TABLE_RELATION_OUTPUT, result);
 
-					// 从最终的SchemaDTO中获取[表名列表]
+					// 从最终的SchemaDTO中获取[表名列表]  --过滤后的
 					List<String> tableNames = result.getTable().stream().map(TableDTO::getName).toList();
 
 					// 根据agentId和表名列表获取语义模型
@@ -224,15 +224,15 @@ public class TableRelationNode implements NodeAction {
 			Set<String> recalledTableNames = tableDocuments.stream()
 				.map(doc -> (String) doc.getMetadata().get("name"))
 				.filter(name -> name != null && !name.isEmpty())
-				.collect(Collectors.toSet());
+				.collect(Collectors.toSet());  // 表名列表
 
 			log.info("Recalled table names for agent {}: {}", agentId, recalledTableNames);
 
 			// 查询该数据源的所有逻辑外键
-			List<LogicalRelation> allLogicalRelations = datasourceService.getLogicalRelations(datasourceId);
+			List<LogicalRelation> allLogicalRelations = datasourceService.getLogicalRelations(datasourceId);  // 查表，查询所有外键数据
 			log.info("Found {} logical relations in datasource: {}", allLogicalRelations.size(), datasourceId);
 
-			// 过滤只保留与召回表相关的外键（源表或目标表在召回列表中）
+			// 过滤只保留与召回表相关的外键（源表或目标表在召回列表中） 格式：主表名.主表字段=关联表名.关联表字段
 			List<String> formattedForeignKeys = allLogicalRelations.stream()
 				.filter(lr -> recalledTableNames.contains(lr.getSourceTableName())
 						|| recalledTableNames.contains(lr.getTargetTableName()))

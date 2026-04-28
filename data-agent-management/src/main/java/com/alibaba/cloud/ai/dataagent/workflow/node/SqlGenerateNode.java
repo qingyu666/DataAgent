@@ -82,7 +82,7 @@ public class SqlGenerateNode implements NodeAction {
 
 		// 获取planner分配的当前执行步骤的sql任务要求，每个步骤的sql任务是不同的。
 		// 不要拿 user query 这个总体的大任务。
-		String promptForSql = getCurrentExecutionStepInstruction(state);
+		String promptForSql = getCurrentExecutionStepInstruction(state);  // instruction字段，是之前节点生成的具体指令
 
 		// 准备生成SQL
 		String displayMessage;

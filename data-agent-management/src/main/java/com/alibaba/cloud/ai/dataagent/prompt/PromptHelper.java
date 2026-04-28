@@ -195,7 +195,7 @@ public class PromptHelper {
 	public static String buildSemanticModelPrompt(List<SemanticModel> semanticModels) {
 		Map<String, Object> params = new HashMap<>();
 		String semanticModel = CollectionUtils.isEmpty(semanticModels) ? ""
-				: semanticModels.stream().map(SemanticModel::getPromptInfo).collect(Collectors.joining(";\n"));
+				: semanticModels.stream().map(SemanticModel::getPromptInfo).collect(Collectors.joining(";\n"));  // 业务名称: %s, 表名: %s, 数据库字段名: %s, 字段同义词: %s, 业务描述: %s, 数据类型: %s
 		params.put("semanticModel", semanticModel);
 		return PromptConstant.getSemanticModelPromptTemplate().render(params);
 	}

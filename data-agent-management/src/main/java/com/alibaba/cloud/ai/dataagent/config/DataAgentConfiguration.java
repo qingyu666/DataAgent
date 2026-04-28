@@ -226,7 +226,7 @@ public class DataAgentConfiguration implements DisposableBean {
 			// The dispatcher at PlanExecutorNode will decide the next step
 			.addConditionalEdges(PLAN_EXECUTOR_NODE, edge_async(new PlanExecutorDispatcher()), Map.of(
 					// If validation fails, go back to PlannerNode to repair
-					PLANNER_NODE, PLANNER_NODE,  // 校验失败，返回【PLANNER_NODE】
+					PLANNER_NODE, PLANNER_NODE,  // 校验失败，返回【PLANNER_NODE】进行重试
 					// If validation passes, proceed to the correct execution node
 					SQL_GENERATE_NODE, SQL_GENERATE_NODE, PYTHON_GENERATE_NODE, PYTHON_GENERATE_NODE,
 					REPORT_GENERATOR_NODE, REPORT_GENERATOR_NODE,
