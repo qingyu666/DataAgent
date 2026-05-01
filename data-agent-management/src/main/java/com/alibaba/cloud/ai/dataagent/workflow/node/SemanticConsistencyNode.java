@@ -67,7 +67,7 @@ public class SemanticConsistencyNode implements NodeAction {
 		SemanticConsistencyDTO semanticConsistencyDTO = SemanticConsistencyDTO.builder()
 			.dialect(dialect)
 			.sql(sql)
-			.executionDescription(getCurrentExecutionStepInstruction(state))
+			.executionDescription(getCurrentExecutionStepInstruction(state))  // 执行步骤的相关指令
 			.schemaInfo(buildMixMacSqlDbPrompt(schemaDTO, true))
 			.userQuery(userQuery)
 			.evidence(evidence)

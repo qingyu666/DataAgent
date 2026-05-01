@@ -145,7 +145,7 @@ public class SqlExecuteNode implements NodeAction {
 
 			try {
 				// Execute SQL query and get results immediately
-				ResultSetBO resultSetBO = dbAccessor.executeSqlAndReturnObject(dbConfig, dbQueryParameter);
+				ResultSetBO resultSetBO = dbAccessor.executeSqlAndReturnObject(dbConfig, dbQueryParameter);  // 执行SQL并返回结果
 				// 调用大模型获取图表配置信息并填充到ResultSetBO中
 				DisplayStyleBO displayStyleBO = enrichResultSetWithChartConfig(state, resultSetBO);  // data-view-analyze
 				resultBO.setResultSet(resultSetBO);

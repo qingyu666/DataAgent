@@ -77,7 +77,7 @@ public class PythonGenerateNode implements NodeAction {
 		boolean codeRunSuccess = StateUtil.getObjectValue(state, PYTHON_IS_SUCCESS, Boolean.class, true); // 上次执行不成功
 		int triesCount = StateUtil.getObjectValue(state, PYTHON_TRIES_COUNT, Integer.class, 0);
 
-		String userPrompt = StateUtil.getCanonicalQuery(state);
+		String userPrompt = StateUtil.getCanonicalQuery(state);  // 重写后的查询
 		if (!codeRunSuccess) {
 			// Last generated Python code failed to run, inform AI model of this
 			// information
