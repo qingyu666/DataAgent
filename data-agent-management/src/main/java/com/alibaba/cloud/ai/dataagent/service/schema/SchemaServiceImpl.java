@@ -176,7 +176,7 @@ public class SchemaServiceImpl implements SchemaService {
 			// 存储文档
 			log.info("Storing  columns and {} tables for datasource: {}", columnDocs.size(), tableDocs.size(),
 					datasourceId);
-			storeSchemaDocuments(datasourceId, columnDocs, tableDocs);
+			storeSchemaDocuments(datasourceId, columnDocs, tableDocs);  // 存储
 			log.info("Successfully stored all documents for datasource: {}", datasourceId);
 			return true;
 		}

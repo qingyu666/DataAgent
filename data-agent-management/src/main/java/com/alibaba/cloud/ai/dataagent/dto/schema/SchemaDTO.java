@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SchemaDTO {
 
-	private String name;
+	private String name;  // dbName?
 
 	private String description;
 

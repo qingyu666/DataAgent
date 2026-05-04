@@ -104,7 +104,7 @@ public class TableRelationNode implements NodeAction {
 		// Execute business logic first - get final result immediately
 		DbConfigBO agentDbConfig = databaseUtil.getAgentDbConfig(Long.valueOf(agentIdStr));
 
-		List<String> logicalForeignKeys = getLogicalForeignKeys(Long.valueOf(agentIdStr), tableDocuments);  // 逻辑外键，查表获取
+		List<String> logicalForeignKeys = getLogicalForeignKeys(Long.valueOf(agentIdStr), tableDocuments);  // 逻辑外键，查表获取。源或目标表在tableDocuments中的，格式为：主表名.主表字段=关联表名.关联表字段
 		log.info("Found {} logical foreign keys for agent: {}", logicalForeignKeys.size(), agentIdStr);
 
 		SchemaDTO initialSchema = buildInitialSchema(agentIdStr, columnDocuments, tableDocuments, agentDbConfig,

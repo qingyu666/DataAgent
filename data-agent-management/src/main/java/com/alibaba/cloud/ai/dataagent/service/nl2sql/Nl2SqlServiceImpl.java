@@ -125,7 +125,7 @@ public class Nl2SqlServiceImpl implements Nl2SqlService {
 		log.debug("Fine selecting schema for query: {} with evidences and specificDbConfig: {}", query,
 				specificDbConfig != null ? specificDbConfig.getUrl() : "default");
 
-		String prompt = buildMixSelectorPrompt(evidence, query, schemaDTO);
+		String prompt = buildMixSelectorPrompt(evidence, query, schemaDTO);  // mix-selector
 		log.debug("Built schema fine selection prompt as follows \n {} \n", prompt);
 
 		Set<String> selectedTables = new HashSet<>();

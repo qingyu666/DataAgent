@@ -64,7 +64,7 @@ public class HumanFeedbackNode implements NodeAction {
 			updated.put("human_next_node", PLAN_EXECUTOR_NODE);
 			updated.put(HUMAN_REVIEW_ENABLED, false);
 		}
-		else {
+		else {  // 人工反馈，拒绝
 			log.info("Plan rejected → regeneration (attempt {})", repairCount + 1);
 			updated.put("human_next_node", PLANNER_NODE);
 			updated.put(PLAN_REPAIR_COUNT, repairCount + 1);
