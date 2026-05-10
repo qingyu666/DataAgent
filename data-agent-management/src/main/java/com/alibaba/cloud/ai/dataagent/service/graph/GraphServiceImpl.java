@@ -61,7 +61,7 @@ public class GraphServiceImpl implements GraphService {
 	public GraphServiceImpl(StateGraph stateGraph, ExecutorService executorService,
 			MultiTurnContextManager multiTurnContextManager, LangfuseService langfuseReporter)
 			throws GraphStateException {
-		this.compiledGraph = stateGraph.compile(CompileConfig.builder().interruptBefore(HUMAN_FEEDBACK_NODE).build());
+		this.compiledGraph = stateGraph.compile(CompileConfig.builder().interruptBefore(HUMAN_FEEDBACK_NODE).build());  // 告诉StateGraph：在执行到 HUMAN_FEEDBACK_NODE 之前插入一个 Checkpoint，挂起执行并持久化当前状态，等待外部恢复
 		this.executor = executorService;
 		this.multiTurnContextManager = multiTurnContextManager;
 		this.langfuseReporter = langfuseReporter;
@@ -77,7 +77,7 @@ public class GraphServiceImpl implements GraphService {
 	}
 
 	@Override
-	public void graphStreamProcess(Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink, GraphRequest graphRequest) {
+	public void graphStreamProcess(Sinks.Many<ServerSentEvent<GraphNodeResponse>> sink, GraphRequest graphRequest) {  // 流程：Controller -> graphStreamProcess() -> StreamContext设置 -> handleNewProcess() ->内部：获取历史轮次信息 -> 执行graph流程 -> subscribeToFlux订阅处理流程
 		if (!StringUtils.hasText(graphRequest.getThreadId())) {
 			graphRequest.setThreadId(UUID.randomUUID().toString());
 		}
@@ -86,7 +86,7 @@ public class GraphServiceImpl implements GraphService {
 		StreamContext context = streamContextMap.computeIfAbsent(threadId, k -> new StreamContext());
 		context.setSink(sink); // 每一轮一个sink？
 		if (StringUtils.hasText(graphRequest.getHumanFeedbackContent())) {
-			handleHumanFeedback(graphRequest); // 执行
+			handleHumanFeedback(graphRequest); // 执行人工反馈流程
 		}
 		else {
 			handleNewProcess(graphRequest);  // 执行新流程
@@ -139,7 +139,7 @@ public class GraphServiceImpl implements GraphService {
 
 		String multiTurnContext = multiTurnContextManager.buildContext(threadId);  // 构建历史对话内容（）  --多轮对话存在内存中，默认保留5轮内容
 		multiTurnContextManager.beginTurn(threadId, query); // 为给定的线程跟踪一个新的轮次。  --当前轮存入内存
-		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream( // 开始执行graph【主流程】
+		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream( // 开始执行graph【主流程】  // compiledGraph（含 Checkpoint 配置的编译图）首次启动流程，框架在内部创建初始 checkpoint。
 				Map.of(IS_ONLY_NL2SQL, nl2sqlOnly, INPUT_KEY, query, AGENT_ID, agentId, HUMAN_REVIEW_ENABLED,
 						humanReviewEnabled, MULTI_TURN_CONTEXT, multiTurnContext, TRACE_THREAD_ID, threadId),
 				RunnableConfig.builder().threadId(threadId).build());
@@ -177,7 +177,7 @@ public class GraphServiceImpl implements GraphService {
 		RunnableConfig baseConfig = RunnableConfig.builder().threadId(threadId).build();
 		RunnableConfig updatedConfig;
 		try {
-			updatedConfig = compiledGraph.updateState(baseConfig, stateUpdate);
+			updatedConfig = compiledGraph.updateState(baseConfig, stateUpdate);  // 更新 checkpoint 中的状态
 		}
 		catch (Exception e) {
 			throw new IllegalStateException("Failed to update graph state for human feedback", e);
@@ -186,7 +186,7 @@ public class GraphServiceImpl implements GraphService {
 			.addMetadata(RunnableConfig.HUMAN_FEEDBACK_METADATA_KEY, feedbackData)
 			.build();
 
-		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(null, resumeConfig);
+		Flux<NodeOutput> nodeOutputFlux = compiledGraph.stream(null, resumeConfig);  // 从 checkpoint 恢复执行
 		subscribeToFlux(context, nodeOutputFlux, graphRequest, agentId, threadId);
 	}
 
