@@ -40,7 +40,7 @@ public class MultiTurnContextManager {  // 多轮上下文的管理
 	private final DataAgentProperties properties;
 
 	// todo：考虑持久化存储
-	private final Map<String, Deque<ConversationTurn>> history = new ConcurrentHashMap<>();  // 历史轮次
+	private final Map<String, Deque<ConversationTurn>> history = new ConcurrentHashMap<>();  // 历史轮次，默认：5
 
 	private final Map<String, PendingTurn> pendingTurns = new ConcurrentHashMap<>();  // 当前轮  --同一对话，value都会新生成一个对象（beginTurn方法）
 

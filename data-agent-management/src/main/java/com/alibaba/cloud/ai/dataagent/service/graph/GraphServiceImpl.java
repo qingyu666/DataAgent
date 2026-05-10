@@ -230,6 +230,7 @@ public class GraphServiceImpl implements GraphService {
 	 */
 	private void handleStreamError(String agentId, String threadId, Throwable error) {
 		log.error("Error in stream processing for threadId: {}: ", threadId, error);
+		multiTurnContextManager.discardPending(threadId);
 		StreamContext context = streamContextMap.remove(threadId);
 		if (context != null && !context.isCleaned()) {
 			// 结束 Langfuse span（失败）
